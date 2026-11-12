@@ -1,0 +1,169 @@
+{
+  "universeUpdatedAt": "2026-09-08",
+  "model": "google/gemini-2.5-flash-lite",
+  "generatedAt": "2026-09-08",
+  "baskets": {
+    "ai without zuckerberg": {
+      "name": "AI Without Zuck",
+      "picks": [
+        {
+          "symbol": "NVDAc",
+          "weight": 33
+        },
+        {
+          "symbol": "MSFTc",
+          "weight": 27
+        },
+        {
+          "symbol": "GOOGLc",
+          "weight": 22
+        },
+        {
+          "symbol": "AMZNc",
+          "weight": 18
+        }
+      ],
+      "excluded": [
+        {
+          "symbol": "METAc",
+          "reason": "Zuckerberg runs Meta"
+        }
+      ],
+      "note": "This basket focuses on companies driving AI innovation and infrastructure, excluding Meta."
+    },
+    "mag 7 minus tesla": {
+      "name": "Mag 7 Minus Tesla",
+      "picks": [
+        {
+          "symbol": "NVDAc",
+          "weight": 24
+        },
+        {
+          "symbol": "MSFTc",
+          "weight": 20
+        },
+        {
+          "symbol": "AAPLc",
+          "weight": 18
+        },
+        {
+          "symbol": "GOOGLc",
+          "weight": 15
+        },
+        {
+          "symbol": "AMZNc",
+          "weight": 13
+        },
+        {
+          "symbol": "METAc",
+          "weight": 10
+        }
+      ],
+      "excluded": [
+        {
+          "symbol": "TSLAc",
+          "reason": "explicitly excluded by user"
+        }
+      ],
+      "note": "This index tracks the major tech giants, excluding Tesla, for broad market exposure."
+    },
+    "everything elon": {
+      "name": "Elon Musk Ventures",
+      "picks": [
+        {
+          "symbol": "TSLAc",
+          "weight": 35
+        },
+        {
+          "symbol": "NVDAc",
+          "weight": 35
+        },
+        {
+          "symbol": "SPCXc",
+          "weight": 30
+        }
+      ],
+      "excluded": [],
+      "note": "This index focuses on companies led by Elon Musk and the key AI hardware powering his innovations."
+    },
+    "companies my mom uses": {
+      "name": "Moms Daily Use",
+      "picks": [
+        {
+          "symbol": "AAPLc",
+          "weight": 32
+        },
+        {
+          "symbol": "GOOGLc",
+          "weight": 28
+        },
+        {
+          "symbol": "AMZNc",
+          "weight": 23
+        },
+        {
+          "symbol": "METAc",
+          "weight": 17
+        }
+      ],
+      "excluded": [],
+      "note": "A basket of companies whose products and services are commonly used in everyday life."
+    },
+    "cloud no ads": {
+      "name": "Cloud Computing",
+      "picks": [
+        {
+          "symbol": "MSFTc",
+          "weight": 35
+        },
+        {
+          "symbol": "NVDAc",
+          "weight": 35
+        },
+        {
+          "symbol": "AMZNc",
+          "weight": 30
+        }
+      ],
+      "excluded": [
+        {
+          "symbol": "GOOGLc",
+          "reason": "primary business is advertising"
+        },
+        {
+          "symbol": "METAc",
+          "reason": "primary business is advertising"
+        }
+      ],
+      "note": "A basket focused on cloud computing infrastructure and services, avoiding ad-heavy businesses."
+    },
+    "the ai data center": {
+      "name": "AI Data Center",
+      "picks": [
+        {
+          "symbol": "NVDAc",
+          "weight": 31
+        },
+        {
+          "symbol": "MSFTc",
+          "weight": 26
+        },
+        {
+          "symbol": "GOOGLc",
+          "weight": 21
+        },
+        {
+          "symbol": "AMZNc",
+          "weight": 17
+        },
+        {
+          "symbol": "SNDKc",
+          "weight": 5
+        }
+      ],
+      "excluded": [],
+      "note": "A basket of companies powering AI infrastructure and data centers."
+    }
+  },
+  "sizing": "market cap, capped"
+}

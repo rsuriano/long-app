@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0052FF">
+<title>Long</title>
+<meta name="description" content="Go long on what you believe in. Build your own index from tokenized stocks on Base. A product mock.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  --blue:#0052FF; --blue-deep:#0038B8; --sky:#B4CDFF; --sky-soft:#E4EEFF;
+  --bg:#CFE1FF; --surface:#F7FAFF; --surface-2:#E9F1FF;
+  --ink:#061B4A; --ink-2:#3E5384; --ink-3:#6B7FA8; --line:#B4CCFA;
+  --up:#128A4E; --down:#C8322F; --up-soft:#D8F1E3; --down-soft:#FBE0DF;
+  --on-blue:#FFFFFF; --hero-bg:#FFFFFF; --hero-ink:#061B4A; --hero-mute:#5A6E9A; --hero-blob:#DCE7FF;
+  --shadow:0 12px 32px rgba(0,82,255,.14);
+  --radius:20px; --radius-s:12px;
+  --display:"Outfit",system-ui,sans-serif; --body:"Instrument Sans",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --blue:#3D7BFF; --blue-deep:#0052FF; --sky:#1E3A78; --sky-soft:#16295A;
+    --bg:#070A14; --surface:#0F1526; --surface-2:#161E36;
+    --ink:#F2F5FF; --ink-2:#B3BDD6; --ink-3:#6F7A98; --line:#232C48;
+    --up:#3DCB82; --down:#F26666; --up-soft:#0F3323; --down-soft:#3A1717;
+    --hero-bg:linear-gradient(150deg,#0052FF,#001E6E); --hero-ink:#FFFFFF; --hero-mute:rgba(255,255,255,.75); --hero-blob:rgba(255,255,255,.10);
+    --shadow:0 12px 32px rgba(0,0,0,.45);
+  }
+}
+:root[data-theme="dark"]{
+  --blue:#3D7BFF; --blue-deep:#0052FF; --sky:#1E3A78; --sky-soft:#16295A;
+  --bg:#070A14; --surface:#0F1526; --surface-2:#161E36;
+  --ink:#F2F5FF; --ink-2:#B3BDD6; --ink-3:#6F7A98; --line:#232C48;
+  --up:#3DCB82; --down:#F26666; --up-soft:#0F3323; --down-soft:#3A1717;
+  --hero-bg:linear-gradient(150deg,#0052FF,#001E6E); --hero-ink:#FFFFFF; --hero-mute:rgba(255,255,255,.75); --hero-blob:rgba(255,255,255,.10);
+  --shadow:0 12px 32px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+[hidden]{display:none !important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.4;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+h1,h2,h3{margin:0;font-family:var(--display);font-weight:600;text-wrap:balance}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums}
+.tnum{font-variant-numeric:tabular-nums}
+
+/* ---------- Frame ---------- */
+.stage{min-height:100%;display:flex;align-items:stretch;justify-content:center}
+.app{position:relative;width:100%;max-width:430px;height:100dvh;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+@media (min-width:720px){
+  .stage{align-items:center;padding:32px 0;background:
+    radial-gradient(60% 50% at 20% 0%, var(--surface-2) 0%, transparent 60%),
+    radial-gradient(50% 40% at 90% 100%, var(--surface-2) 0%, transparent 60%), var(--bg)}
+  .app{height:min(880px, calc(100dvh - 64px));border-radius:44px;border:10px solid var(--ink);box-shadow:0 40px 90px rgba(0,0,0,.35)}
+}
+.screen{position:absolute;inset:0;display:none;flex-direction:column}
+.screen.active{display:flex}
+.scroll{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:0 20px 96px;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:calc(14px + env(safe-area-inset-top)) 20px 8px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand .dot{width:22px;height:22px;border-radius:50%;background:var(--blue);position:relative}
+.brand .dot::after{content:"";position:absolute;left:10px;top:5px;width:3px;height:12px;background:var(--on-blue);border-radius:2px;transform:rotate(-35deg)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--sky-soft);color:var(--blue);display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:13px;border:1px solid var(--line)}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.section{margin-top:26px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+.section-head h2{font-size:17px}
+.link{color:var(--blue);font-weight:600;font-size:13px}
+.muted{color:var(--ink-2)}
+.tiny{font-size:12px;color:var(--ink-3)}
+.up{color:var(--up)} .down{color:var(--down)}
+
+/* ---------- Tab bar ---------- */
+.tabbar{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;align-items:flex-end;padding:4px 8px calc(6px + env(safe-area-inset-bottom));background:color-mix(in srgb, var(--surface) 88%, transparent);backdrop-filter:blur(14px);border-top:1px solid var(--line);z-index:5}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;padding:3px 0;color:var(--ink-3);font-size:10px;font-weight:600;border-radius:12px}
+.tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--blue)}
+.tab.build{position:relative}
+.tab.build .ring{width:44px;height:44px;margin:-20px 0 -2px;border-radius:50%;background:var(--blue);color:var(--on-blue);display:grid;place-items:center;box-shadow:var(--shadow)}
+.tab.build .ring svg{width:22px;height:22px;stroke-width:2.2}
+
+/* ---------- Cards ---------- */
+.hero{margin-top:8px;background:var(--hero-bg);color:var(--hero-ink);border-radius:var(--radius);padding:22px 22px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:var(--hero-blob);right:-90px;top:-120px}
+.hero>*{position:relative}
+.hero .eyebrow{color:var(--hero-mute)}
+.hero .total{font-size:38px;font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-top:6px}
+.hero .delta{display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;font-weight:500}
+.hero .pill{background:var(--sky-soft);color:var(--blue);padding:2px 8px;border-radius:999px;font-weight:600}
+:root[data-theme="dark"] .hero .pill{background:rgba(255,255,255,.18);color:#fff}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero .pill{background:rgba(255,255,255,.18);color:#fff}}
+.hero .row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:20px;gap:12px}
+.hero .row .btn{white-space:nowrap;flex:none}
+.hero .cash{font-size:12px;color:var(--hero-mute);min-width:0}
+.hero .cash b{color:var(--hero-ink)}
+.hero .cash b{display:block;font-family:var(--display);font-size:15px;font-weight:600;white-space:nowrap}
+.hero .cash b span{display:block;font-size:13px;font-weight:500;color:var(--hero-mute)}
+.hero .cash img{width:16px;height:16px;border-radius:50%;vertical-align:-3px;margin-right:5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:12px 18px;font-weight:600;font-size:15px;transition:transform .12s ease, opacity .12s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--blue);color:var(--on-blue);box-shadow:var(--shadow)}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn-hero{background:var(--blue);color:var(--on-blue);box-shadow:var(--shadow)}
+.btn-lg{width:100%;padding:16px 20px;font-size:16px}
+.btn[disabled]{opacity:.45;box-shadow:none;cursor:not-allowed}
+
+.list{display:flex;flex-direction:column;gap:10px}
+.row-card{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);padding:12px 14px;text-align:left;width:100%}
+.row-card .icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:20px;background:var(--surface-2)}
+.row-card .t{font-weight:600;display:block}
+.row-card .s{font-size:12px;color:var(--ink-3);margin-top:2px;display:block}
+.row-card .v{text-align:right}
+.row-card .v .num{font-size:15px;font-weight:600}
+.row-card .v small{display:block;font-size:12px;font-weight:600;margin-top:2px}
+.spark{width:64px;height:28px}
+.mini{display:flex;gap:2px;margin-top:6px}
+.mini span{width:10px;height:4px;border-radius:2px;background:var(--sky)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:500;color:var(--ink);text-align:left}
+.chip:hover{border-color:var(--blue)}
+.chip.on{background:var(--sky-soft);border-color:var(--blue);color:var(--blue)}
+
+/* ---------- Build ---------- */
+.steps{display:flex;gap:6px;margin:6px 0 18px}
+.steps i{flex:1;height:4px;border-radius:2px;background:var(--line)}
+.steps i.on{background:var(--blue)}
+.prompt-box{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:8px 8px 8px 16px;display:flex;align-items:flex-end;gap:8px;transition:border-color .15s}
+.prompt-box:focus-within{border-color:var(--blue)}
+.prompt-box textarea{flex:1;border:0;background:none;resize:none;font:inherit;color:var(--ink);font-size:16px;line-height:1.4;padding:10px 0;min-height:64px;outline:none}
+.prompt-box textarea::placeholder{color:var(--ink-3)}
+.send{width:44px;height:44px;border-radius:50%;background:var(--blue);color:var(--on-blue);display:grid;place-items:center;flex:none}
+.send svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.thinking{list-style:none;margin:22px 0 0;padding:0;display:flex;flex-direction:column;gap:12px}
+.thinking li{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--ink-3);transition:color .2s}
+.thinking li i{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);position:relative;transition:all .2s}
+.thinking li.doing{color:var(--ink)}
+.thinking li.doing i{border-color:var(--blue);border-top-color:transparent;animation:spin .7s linear infinite}
+.thinking li.done{color:var(--ink)}
+.thinking li.done i{background:var(--blue);border-color:var(--blue)}
+.thinking li.done i::after{content:"";position:absolute;left:6px;top:3px;width:5px;height:9px;border:solid var(--on-blue);border-width:0 2px 2px 0;transform:rotate(45deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-note{display:flex;gap:10px;background:var(--sky-soft);border-radius:var(--radius-s);padding:12px 14px;font-size:13.5px;color:var(--ink);margin-top:16px}
+.ai-note .spark-ic{flex:none;width:22px;height:22px;border-radius:50%;background:var(--blue);color:var(--on-blue);display:grid;place-items:center;font-size:12px}
+.holdings{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.hold{display:grid;grid-template-columns:40px 1fr auto 30px;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);padding:10px 8px 10px 12px}
+.hold .logo{width:40px;height:40px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:11px;color:var(--blue);letter-spacing:-.02em}
+.hold .name{font-weight:600;font-size:14px}
+.hold .bar{height:5px;border-radius:3px;background:var(--surface-2);margin-top:6px;overflow:hidden}
+.hold .bar i{display:block;height:100%;background:var(--blue);border-radius:3px;transition:width .4s ease}
+.hold .w{font-family:var(--display);font-weight:600;font-size:15px}
+.hold .rm{width:30px;height:30px;border-radius:50%;color:var(--ink-3);display:grid;place-items:center;font-size:18px;line-height:1}
+.hold .rm:hover{background:var(--down-soft);color:var(--down)}
+.excluded{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;align-items:center}
+.excluded .x{border:1px dashed var(--down);color:var(--down);border-radius:999px;padding:4px 10px;font-size:12px;font-weight:600;text-decoration:line-through}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+.fact{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);padding:10px 12px}
+.fact .eyebrow{font-size:10px}
+.fact b{display:block;font-family:var(--display);font-weight:600;font-size:16px;margin-top:2px}
+.title-edit{display:flex;align-items:center;gap:8px;position:relative}
+.title-edit .sizer{position:absolute;visibility:hidden;white-space:pre;font-family:var(--display);font-weight:600;font-size:24px;letter-spacing:-.01em}
+.title-edit input{width:6ch;max-width:calc(100% - 30px);min-width:0;border:0;border-bottom:2px dashed transparent;background:none;padding:0 0 2px;font-family:var(--display);font-weight:600;font-size:24px;letter-spacing:-.01em;color:var(--ink);outline:none;border-radius:0}
+.title-edit input:focus{border-bottom-color:var(--blue)}
+.title-edit svg{width:18px;height:18px;flex:none;stroke:var(--ink-3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.title-edit:focus-within svg{stroke:var(--blue)}
+.hold .wr{-webkit-appearance:none;appearance:none;width:100%;height:5px;margin:8px 0 2px;border-radius:3px;display:block;--fill:calc((100% - 18px) * var(--p) / 100 + 9px);background:linear-gradient(to right, var(--blue) var(--fill), var(--surface-2) var(--fill));outline:none;touch-action:pan-y}
+.hold .wr::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--surface);border:2px solid var(--blue);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.hold .wr::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--surface);border:2px solid var(--blue)}
+.hold .wr::-moz-range-track{background:transparent}
+.hold .wr:focus-visible{outline:none}
+.hold .wr:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(--sky)}
+
+.amount{margin-top:8px;text-align:center;padding:24px 0 8px}
+.amount .big{font-family:var(--display);font-size:54px;font-weight:600;letter-spacing:-.03em;line-height:1;color:var(--ink);display:inline-flex;align-items:baseline;gap:4px}
+.amount .big span{font-size:28px;color:var(--ink-3)}
+.amount input{position:absolute;opacity:0;pointer-events:none}
+.presets{display:flex;gap:8px;justify-content:center;margin-top:16px}
+.presets .chip{padding:8px 14px}
+.pay{margin-top:22px;display:flex;flex-direction:column;gap:8px}
+.pay-opt{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:12px 14px;text-align:left;width:100%}
+.pay-opt.on{border-color:var(--blue);background:var(--sky-soft)}
+.pay-opt .logo{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:11px}
+.pay-opt .logo{position:relative;overflow:hidden}
+.pay-opt .logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.pay-opt .logo i{font-style:normal}
+.usdc{background:#2775CA;color:#fff}
+.ars{background:#74ACDF;color:#061B4A}
+.pay-opt .t{font-weight:600;display:block} .pay-opt .s{font-size:12px;color:var(--ink-3);display:block}
+.pay-opt .r{text-align:right;font-size:13px}
+.receipt{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);margin-top:18px;padding:4px 14px}
+.receipt div{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.receipt div:last-child{border:0}
+.receipt b{font-family:var(--display);font-weight:600}
+.footer-cta{position:absolute;left:0;right:0;bottom:0;padding:12px 20px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(to top, var(--bg) 70%, transparent);z-index:4}
+.footer-cta .hint{text-align:center;font-size:12px;color:var(--ink-3);margin-top:8px}
+
+/* ---------- Success ---------- */
+.success{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;background:var(--bg);z-index:8}
+.success.active{display:flex}
+.check{width:96px;height:96px;border-radius:50%;background:var(--blue);display:grid;place-items:center;box-shadow:var(--shadow);animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+.check svg{width:48px;height:48px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:40;stroke-dashoffset:40;animation:draw .5s .25s ease forwards}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.success h1{font-size:26px;margin-top:22px}
+.success p{color:var(--ink-2);margin:8px 0 0}
+.tx{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-s);padding:10px 14px;font-size:13px;color:var(--ink-2);display:flex;gap:10px;align-items:center}
+.tx code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink)}
+.base-badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--blue);background:var(--sky-soft);border-radius:999px;padding:4px 10px}
+.base-badge i{width:10px;height:10px;border-radius:50%;background:var(--blue);display:inline-block}
+.success .btn{margin-top:28px;min-width:220px}
+
+/* ---------- Sheet ---------- */
+.backdrop{position:absolute;inset:0;background:rgba(6,10,30,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+.backdrop.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:26px 26px 0 0;padding:10px 20px calc(20px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.9,.3,1);z-index:10;max-height:88%;overflow-y:auto}
+.sheet.on{transform:translateY(0)}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.sheet h2{font-size:20px}
+.sheet .sub{color:var(--ink-2);font-size:13px;margin-top:2px}
+.perf{margin-top:14px;background:var(--surface-2);border-radius:var(--radius-s);padding:12px 14px}
+.perf svg{width:100%;height:90px;display:block}
+.range{display:flex;gap:6px;margin-top:10px}
+.range button{flex:1;padding:6px 0;border-radius:8px;font-size:12px;font-weight:600;color:var(--ink-3)}
+.range button.on{background:var(--surface);color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+.actions .btn{padding:12px 8px;font-size:14px}
+.toggle{display:flex;justify-content:space-between;align-items:center;background:var(--surface-2);border-radius:var(--radius-s);padding:12px 14px;margin-top:10px}
+.toggle .t{font-weight:600;font-size:14px} .toggle .s{font-size:12px;color:var(--ink-3)}
+.switch{width:46px;height:28px;border-radius:14px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch.on{background:var(--blue)} .switch.on::after{transform:translateX(18px)}
+.toast{position:absolute;left:50%;bottom:110px;transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:20;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- Activity ---------- */
+.act{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.act .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:16px;background:var(--surface-2)}
+.act .t{font-weight:600;font-size:14px} .act .s{font-size:12px;color:var(--ink-3);margin-top:2px}
+.act .v{text-align:right;font-family:var(--display);font-weight:600}
+.act .v small{display:block;font-family:var(--body);font-weight:500;font-size:11px;color:var(--ink-3)}
+.legal{margin-top:28px;font-size:11px;line-height:1.5;color:var(--ink-3)}
+.legal a{color:inherit}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  .check svg{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+<div class="stage"><div class="app" id="app">
+
+<!-- ================= HOME ================= -->
+<section class="screen active" id="s-home">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span>Long</div>
+    <button class="avatar" id="theme-btn" title="Toggle theme">RS</button>
+  </div>
+  <div class="scroll">
+    <div class="hero">
+      <div class="eyebrow">You are long</div>
+      <div class="total num" id="total">$2,170.52</div>
+      <div class="delta"><span class="pill num" id="total-delta">+2.4%</span> <span>today · <span class="num">+$50.86</span></span></div>
+      <div class="row">
+        <div class="cash">Available<b class="num" id="cash">$320.00 USDC</b></div>
+        <button class="btn btn-hero" data-go="build">Go long</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h2>Your indices</h2><span class="tiny">Tokenized stocks · Base</span></div>
+      <div class="list" id="owned"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><h2>Ideas from people like you</h2><button class="link" data-go="explore">See all</button></div>
+      <div class="list" id="ideas"></div>
+    </div>
+
+    <p class="legal">Long is a product mock. Tokenized stocks are issued by Coinbase on Base and are available only to eligible users outside the United States. ARGt is a peso stablecoin issued by Twin. Nothing here is investment advice.</p>
+  </div>
+</section>
+
+<!-- ================= BUILD ================= -->
+<section class="screen" id="s-build">
+  <div class="topbar">
+    <button class="link" id="build-back">‹ Back</button>
+    <span class="eyebrow" id="build-step-label">Step 1 of 3</span>
+    <span style="width:44px"></span>
+  </div>
+  <div class="scroll" id="build-scroll">
+    <div class="steps"><i class="on"></i><i></i><i></i></div>
+
+    <!-- Step 1: describe -->
+    <div id="b1">
+      <h1 style="font-size:26px;letter-spacing:-.01em">What do you want to own?</h1>
+      <p class="muted" style="margin:8px 0 18px">Say it like you'd say it to a friend. Include what you <em>don't</em> want, too.</p>
+      <div class="prompt-box">
+        <textarea id="prompt" rows="2" placeholder="e.g. AI without Zuckerberg"></textarea>
+        <button class="send" id="send" aria-label="Build index"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <div class="section" id="suggest-section">
+        <div class="eyebrow" style="margin-bottom:10px">Try one</div>
+        <div class="chips" id="suggest"></div>
+      </div>
+      <ol class="thinking" id="thinking" hidden>
+        <li><i></i>Reading what you want, and what you don't</li>
+        <li><i></i>Screening 240 tokenized stocks on Base</li>
+        <li><i></i>Sizing weights and checking liquidity</li>
+      </ol>
+    </div>
+
+    <!-- Step 2: review basket -->
+    <div id="b2" hidden>
+      <label class="title-edit"><span class="sizer" id="idx-sizer" aria-hidden="true"></span><input id="idx-name" maxlength="28" value="Your index" aria-label="Index name" spellcheck="false"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></label>
+      <div class="ai-note"><span class="spark-ic">✦</span><span id="ai-text"></span></div>
+      <div class="excluded" id="excluded"></div>
+      <div class="holdings" id="holdings"></div>
+      <div class="facts">
+        <div class="fact"><span class="eyebrow">Holdings</span><b id="f-count">8</b></div>
+        <div class="fact"><span class="eyebrow">Fee</span><b>0.15%<span class="tiny"> /yr</span></b></div>
+        <div class="fact"><span class="eyebrow">Rebalance</span><b>Monthly</b></div>
+      </div>
+    </div>
+
+    <!-- Step 3: amount -->
+    <div id="b3" hidden>
+      <h1 style="font-size:24px;letter-spacing:-.01em">How much?</h1>
+      <div class="amount">
+        <label class="big" for="amt"><span>$</span><span id="amt-view">100</span></label>
+        <input id="amt" type="number" inputmode="decimal" min="1" value="100">
+      </div>
+      <div class="presets">
+        <button class="chip" data-amt="25">$25</button>
+        <button class="chip on" data-amt="100">$100</button>
+        <button class="chip" data-amt="250">$250</button>
+        <button class="chip" data-amt="500">$500</button>
+      </div>
+      <div class="eyebrow" style="margin:24px 0 8px">Pay with</div>
+      <div class="pay">
+        <button class="pay-opt on" data-pay="usdc"><span class="logo usdc"><img src="img/usdc.png" alt="USDC" onerror="this.remove()"><i>USDC</i></span><span><span class="t">USDC balance</span><br><span class="s">On Base · instant</span></span><span class="r num">$320.00</span></button>
+        <button class="pay-opt" data-pay="argt"><span class="logo ars"><img src="img/argt.avif" alt="ARGt" onerror="this.remove()"><i>ARGt</i></span><span><span class="t">ARGt balance</span><br><span class="s">By Twin · 1.290 per USD</span></span><span class="r num">ARGt 412.800</span></button>
+      </div>
+      <div class="receipt">
+        <div><span>You go long with</span><b class="num" id="r-amt">$100.00</b></div>
+        <div id="r-fx-row" hidden><span>Swap ARGt → USDC</span><b class="num" id="r-fx">129.000 ARGt</b></div>
+        <div><span>Network + issuer fee</span><b class="num">$0.12</b></div>
+        <div><span>Tokens minted</span><b id="r-tokens">8 stocks</b></div>
+        <div><span>Settlement</span><b>Seconds, on Base</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-cta" id="build-cta" hidden>
+    <button class="btn btn-primary btn-lg" id="build-next">Looks good</button>
+    <div class="hint" id="build-hint">Drag a bar to change a weight, tap the title to rename.</div>
+  </div>
+</section>
+
+<!-- ================= EXPLORE ================= -->
+<section class="screen" id="s-explore">
+  <div class="topbar">
+    <button class="link" data-go="home">‹ Home</button>
+    <span class="eyebrow">Curated indices</span>
+    <span style="width:44px"></span>
+  </div>
+  <div class="scroll">
+    <h1 style="font-size:24px;letter-spacing:-.01em;margin-top:4px">Ideas from people like you</h1>
+    <p class="muted" style="margin:6px 0 16px">Copy one as a starting point, then make it yours.</p>
+    <div class="list" id="explore"></div>
+  </div>
+</section>
+
+<!-- ================= ACTIVITY ================= -->
+<section class="screen" id="s-activity">
+  <div class="topbar"><div class="brand"><span class="dot"></span>Activity</div><span class="base-badge"><i></i>Base</span></div>
+  <div class="scroll">
+    <div class="section" style="margin-top:6px">
+      <div class="section-head"><h2>This month</h2><span class="tiny">Dividends auto-reinvest</span></div>
+      <div id="activity"></div>
+    </div>
+    <p class="legal">Every index is a token in your wallet. You can see each transaction on Basescan, and take your holdings anywhere Base goes.</p>
+  </div>
+</section>
+
+<!-- ================= SUCCESS ================= -->
+<div class="success" id="success">
+  <div class="check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div>
+  <h1 id="ok-title">You're long.</h1>
+  <p id="ok-sub">Everyday Tech is now in your wallet.</p>
+  <div class="tx"><span class="base-badge"><i></i>Base</span><code id="ok-tx">0x3f9a…c21e</code><span class="tiny">Basescan ›</span></div>
+  <button class="btn btn-primary" id="ok-done">Back to portfolio</button>
+</div>
+
+<!-- ================= TAB BAR ================= -->
+<nav class="tabbar" id="tabbar">
+  <button class="tab on" data-tab="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button class="tab build" data-tab="build"><span class="ring"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>Build</button>
+  <button class="tab" data-tab="activity"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>Activity</button>
+</nav>
+
+<!-- ================= INDEX DETAIL SHEET ================= -->
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h2 id="d-name">Everyday Tech</h2>
+  <div class="sub" id="d-sub">8 stocks · created by you · 12 Aug</div>
+  <div class="perf">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span class="num" style="font-size:24px;font-weight:600" id="d-val">$1,240.50</span>
+      <span class="num up" style="font-weight:600" id="d-delta">+3.2%</span>
+    </div>
+    <svg id="d-chart" viewBox="0 0 300 90" preserveAspectRatio="none"></svg>
+    <div class="range"><button>1W</button><button class="on">1M</button><button>3M</button><button>1Y</button></div>
+  </div>
+  <div class="holdings" id="d-holdings" style="margin-top:12px"></div>
+  <div class="actions">
+    <button class="btn btn-primary" id="d-add">Add</button>
+        <button class="btn btn-ghost" id="d-sell">Sell</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Done</div>
+
+</div></div>
+
+<script>
+/* ---------- Data ---------- */
+const STOCKS = {
+  AAPL:"Apple", MSFT:"Microsoft", NVDA:"Nvidia", AMZN:"Amazon", GOOGL:"Alphabet", META:"Meta", TSLA:"Tesla",
+  AMD:"AMD", AVGO:"Broadcom", TSM:"TSMC", ASML:"ASML", ORCL:"Oracle", NFLX:"Netflix", SPOT:"Spotify", UBER:"Uber",
+  COST:"Costco", KO:"Coca-Cola", PEP:"PepsiCo", JNJ:"J&J", PG:"P&G", V:"Visa", MA:"Mastercard", JPM:"JPMorgan",
+  XOM:"Exxon", CVX:"Chevron", MELI:"MercadoLibre", NU:"Nubank", GLOB:"Globant", DESP:"Despegar", VIST:"Vista Energy",
+  CPA:"Copa Airlines", PLTR:"Palantir", CRM:"Salesforce", SHOP:"Shopify", ABBV:"AbbVie", O:"Realty Income", LLY:"Eli Lilly",
+  ARM:"Arm", SMCI:"Supermicro", VRT:"Vertiv", MU:"Micron",
+  XPEV:"XPeng", HSAI:"Hesai", BIDU:"Baidu", NIO:"NIO", LI:"Li Auto", BABA:"Alibaba", PDD:"PDD", ISRG:"Intuitive", SYM:"Symbotic", TER:"Teradyne",
+  CEG:"Constellation", VST:"Vistra", CCJ:"Cameco", BWXT:"BWX Tech", SMR:"NuScale", OKLO:"Oklo", NVO:"Novo Nordisk", HIMS:"Hims", RKLB:"Rocket Lab", ASTS:"AST Space", WMT:"Walmart", SBUX:"Starbucks"
+};
+// people → the company they run, so "without Zuckerberg" works
+const PEOPLE = { zuckerberg:"META", zuck:"META", musk:"TSLA", elon:"TSLA", bezos:"AMZN", cook:"AAPL", nadella:"MSFT", jensen:"NVDA", huang:"NVDA", pichai:"GOOGL", dimon:"JPM", altman:"MSFT", ma:"BABA" };
+const THEMES = [
+  { key:"cnrobot", match:/(chin\w*[\s,]+(robot|humanoid|ev)|(robot|humanoid)\w*[\s,]+(in|from)?\s*chin)/i, name:"Chinese Robotics",
+    picks:["XPEV","HSAI","BIDU","NIO","LI","BABA","PDD"],
+    note:"Humanoids, lidar and the EV makers building them, through US-listed ADRs. Beijing's answer to Optimus." },
+  { key:"robot", match:/\b(robot|humanoid|automation|drones?)/i, name:"Robotics",
+    picks:["TSLA","NVDA","ISRG","SYM","TER","XPEV","HSAI"],
+    note:"Physical AI: the humanoids, the surgical arms, and the sensors that let them see." },
+  { key:"nuclear", match:/\b(nuclear|uranium|reactor|smr)/i, name:"Nuclear Renaissance",
+    picks:["CEG","VST","CCJ","BWXT","SMR","OKLO"],
+    note:"Reactors, fuel and the utilities restarting them, all pulled by AI data-center demand." },
+  { key:"glp1", match:/\b(glp|ozempic|weight|obesity|semaglutide)/i, name:"GLP-1 Winners",
+    picks:["LLY","NVO","HIMS","COST","WMT"],
+    note:"The drugmakers and the retailers selling the pens. Losing weight, gaining market cap." },
+  { key:"space", match:/\b(space|rockets?|satellite|orbit)/i, name:"Space Economy",
+    picks:["RKLB","ASTS","NVDA","GOOGL"],
+    note:"Launch, satellites-to-phone, and the compute that plans the missions." },
+  { key:"china", match:/\b(china|chinese)\b/i, name:"China Tech",
+    picks:["BABA","PDD","BIDU","XPEV","NIO","LI","HSAI"],
+    note:"Chinese tech through US-listed ADRs. Cheap on paper, spicy in practice." },
+  { key:"ai", match:/\b(ai|artificial|gpu|chips?|semis?|semiconductor|infra)/i, name:"AI Infrastructure",
+    picks:["NVDA","MSFT","META","GOOGL","AMZN","AVGO","TSM","AMD","ASML","ORCL","MU"],
+    note:"The chips, the foundries and the clouds spending the most on AI." },
+  { key:"latam", match:/\b(latam|latin|argentin|brazil|brasil|mexic|colombia|chile|emerging|south america)/i, name:"LatAm Champions",
+    picks:["MELI","NU","GLOB","VIST","DESP","CPA"],
+    note:"Latin American companies that list in the US: the region's growth, with US-market liquidity." },
+  { key:"daily", match:/\b(every ?day|daily|use|brands?|consumer|life|mom|mum|dad|parents)/i, name:"Everyday Brands",
+    picks:["AAPL","GOOGL","META","AMZN","NFLX","SPOT","UBER","MELI","COST","WMT","SBUX"],
+    note:"Companies you probably paid this week. Owning what you use, in one token." },
+  { key:"income", match:/\b(dividend|income|yield|cash ?flow|retire)/i, name:"Steady Income",
+    picks:["KO","PEP","JNJ","PG","ABBV","O","V","MSFT","JPM"],
+    note:"Long-standing dividend payers. Payouts arrive in USDC and reinvest automatically." },
+  { key:"energy", match:/\b(oil|energy|gas)/i, name:"Energy", picks:["XOM","CVX","VIST"], note:"Energy majors and a LatAm producer." },
+  { key:"health", match:/\b(health|pharma|medic|bio)/i, name:"Health & Longevity", picks:["LLY","JNJ","ABBV","PG"], note:"Healthcare leaders with global scale." },
+  { key:"fin", match:/\b(fintech|payments?|bank|finance)/i, name:"Payments & Fintech", picks:["V","MA","JPM","NU","SHOP","MELI"], note:"The rails money moves on, old and new." }
+];
+const DEFAULT_THEME = { name:"Quality Growth", picks:["MSFT","AAPL","GOOGL","V","COST","LLY","AMZN","TSM"],
+  note:"A balanced core of profitable, growing businesses. Tell me more and I'll tilt it." };
+
+const SUGGEST = [
+  "AI without Zuckerberg",
+  "Chinese robotics",
+  "Nuclear renaissance",
+  "GLP-1 winners",
+  "Companies my mom uses",
+  "Latin America, listed in New York",
+  "Dividends, no oil, no banks"
+];
+
+let owned = [
+  { name:"Everyday Tech", picks:["AAPL","GOOGL","META","AMZN","NFLX","SPOT","UBER","MELI"], value:1240.50, delta:3.2, created:"12 Aug", emoji:"📱" },
+  { name:"LatAm Growth", picks:["MELI","NU","GLOB","VIST","DESP"], value:610.02, delta:-1.1, created:"3 Sep", emoji:"🌎" }
+];
+let cash = 320.00;
+let ARGT = 412800; const FX = 1290; // ARGt per USD, mock rate
+const argt = n => Math.round(n).toLocaleString("de-DE") + " ARGt";
+const CURATED = [
+  { name:"AI without Zuckerberg", holders:2140, perf:18.4, emoji:"🧠", prompt:"AI without Zuckerberg", by:"Long picks" },
+  { name:"Chinese robotics", holders:1370, perf:24.1, emoji:"🤖", prompt:"Chinese robotics", by:"@nico.base.eth" },
+  { name:"Nuclear renaissance", holders:1910, perf:31.5, emoji:"⚛️", prompt:"Nuclear renaissance", by:"Long picks" },
+  { name:"GLP-1 winners", holders:860, perf:12.8, emoji:"💉", prompt:"GLP-1 winners", by:"@dra.lu" },
+  { name:"LatAm on Wall St", holders:3210, perf:9.7, emoji:"🌎", prompt:"Latin America, listed in New York", by:"Long picks" },
+  { name:"Companies my mom uses", holders:1980, perf:7.9, emoji:"🛒", prompt:"Companies my mom uses", by:"@mati" },
+  { name:"Space economy", holders:640, perf:19.3, emoji:"🚀", prompt:"Space and rockets, no defense", by:"@sofi.base.eth" },
+  { name:"Dividends, no oil, no banks", holders:2470, perf:4.6, emoji:"🌱", prompt:"Dividends, no oil, no banks", by:"Long picks" }
+];
+const IDEAS = CURATED.slice(0,3).map(c=>({ name:c.name, sub:`${c.holders.toLocaleString("en-US")} holders · +${c.perf.toFixed(1)}% 3M`, emoji:c.emoji, prompt:c.prompt }));
+let activity = [
+  { t:"Dividend · Everyday Tech", s:"Auto-reinvested · 5 Sep", v:"+$2.14", small:"USDC", ic:"💧", cls:"up" },
+  { t:"Rebalanced · LatAm Growth", s:"Monthly · 1 Sep", v:"5 trades", small:"$0.04 fee", ic:"🔁" },
+  { t:"Went long · LatAm Growth", s:"ARGt → USDC → index · 3 Sep", v:"−$600.00", small:"774.000 ARGt", ic:"📈" },
+  { t:"Received · ARGt from Twin", s:"Peso stablecoin · 10 Aug", v:"+$200.00", small:"258.000 ARGt", ic:"🇦🇷", cls:"up" }
+];
+
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct = n => (n>=0?"+":"") + n.toFixed(1) + "%";
+function seeded(seed){ let x = seed*9301+49297; return ()=>{ x=(x*9301+49297)%233280; return x/233280; }; }
+function series(seed, up){ const r=seeded(seed); let v=50, out=[]; for(let i=0;i<30;i++){ v += (r()-0.5+(up?0.06:-0.04))*6; out.push(v);} return out; }
+function sparkline(vals, w, h, cls){
+  const min=Math.min(...vals), max=Math.max(...vals);
+  const pts = vals.map((v,i)=>[(i/(vals.length-1))*w, h-((v-min)/(max-min||1))*(h-6)-3]);
+  const d = pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const last = pts[pts.length-1];
+  return `<svg viewBox="0 0 ${w} ${h}" class="spark" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="var(--${cls})" stroke-width="2" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="2.5" fill="var(--${cls})"/></svg>`;
+}
+function areaChart(vals, cls){
+  const w=300,h=90,min=Math.min(...vals),max=Math.max(...vals);
+  const pts = vals.map((v,i)=>[(i/(vals.length-1))*w, h-((v-min)/(max-min||1))*(h-14)-6]);
+  const d = pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const last = pts[pts.length-1];
+  return `<defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--${cls})" stop-opacity=".28"/><stop offset="1" stop-color="var(--${cls})" stop-opacity="0"/></linearGradient></defs>
+  <path d="${d} L${w} ${h} L0 ${h}Z" fill="url(#g)"/><path d="${d}" fill="none" stroke="var(--${cls})" stroke-width="2"/><circle cx="${last[0]}" cy="${last[1]}" r="3.5" fill="var(--${cls})"/>`;
+}
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),1800); }
+function txHash(){ const h="0123456789abcdef"; let s="0x"; for(let i=0;i<4;i++) s+=h[Math.random()*16|0]; s+="…"; for(let i=0;i<4;i++) s+=h[Math.random()*16|0]; return s; }
+
+/* ---------- Navigation ---------- */
+let tab="home";
+function go(name){
+  tab=name;
+  $$(".screen").forEach(s=>s.classList.toggle("active", s.id==="s-"+name));
+  $$(".tab").forEach(t=>t.classList.toggle("on", t.dataset.tab===name));
+  $("#tabbar").hidden = (name==="build");
+  if(name==="build") setStep(1);
+  if(name==="home") renderHome();
+  if(name==="explore"){ $$(".tab").forEach(t=>t.classList.toggle("on", t.dataset.tab==="home")); renderExplore(); }
+  if(name==="activity") renderActivity();
+}
+$$("[data-tab]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.tab)));
+$$("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+
+/* ---------- Home ---------- */
+function renderHome(){
+  const total = owned.reduce((a,o)=>a+o.value,0)+cash;
+  $("#total").textContent = money(total);
+  $("#cash").innerHTML = `<img src="img/usdc.png" alt="" onerror="this.remove()">${money(cash)} USDC<span><img src="img/argt.avif" alt="" onerror="this.remove()">${argt(ARGT)}</span>`;
+  $("#owned").innerHTML = owned.map((o,i)=>`
+    <button class="row-card" data-open="${i}">
+      <span class="icon">${o.emoji}</span>
+      <span><span class="t">${o.name}</span><span class="s">${o.picks.length} stocks · ${o.created}</span></span>
+      <span class="v">${sparkline(series(i+7,o.delta>=0),64,28,o.delta>=0?"up":"down")}<span class="num" style="display:block">${money(o.value)}</span><small class="${o.delta>=0?"up":"down"} num">${pct(o.delta)}</small></span>
+    </button>`).join("");
+  $$("[data-open]").forEach(b=>b.addEventListener("click",()=>openDetail(+b.dataset.open)));
+  $("#ideas").innerHTML = IDEAS.map(i=>`
+    <button class="row-card" data-idea="${i.prompt}">
+      <span class="icon">${i.emoji}</span>
+      <span><span class="t">${i.name}</span><span class="s">${i.sub}</span></span>
+      <span class="link">Copy ›</span>
+    </button>`).join("");
+  $$("[data-idea]").forEach(b=>b.addEventListener("click",()=>{ go("build"); $("#prompt").value=b.dataset.idea; buildFromPrompt(); }));
+}
+
+function renderExplore(){
+  $("#explore").innerHTML = CURATED.map(c=>`
+    <button class="row-card" data-idea="${c.prompt}">
+      <span class="icon">${c.emoji}</span>
+      <span><span class="t">${c.name}</span><span class="s">${c.holders.toLocaleString("en-US")} holders · by ${c.by}</span></span>
+      <span class="v"><span class="num up" style="display:block">+${c.perf.toFixed(1)}%</span><small class="tiny" style="font-weight:500">3M</small></span>
+    </button>`).join("");
+  $$("#explore [data-idea]").forEach(b=>b.addEventListener("click",()=>{ go("build"); $("#prompt").value=b.dataset.idea; buildFromPrompt(); }));
+}
+
+/* ---------- Detail sheet ---------- */
+let detailIdx=0;
+function openDetail(i){
+  detailIdx=i; const o=owned[i];
+  $("#d-name").textContent=o.name;
+  $("#d-sub").textContent=`${o.picks.length} stocks · created by you · ${o.created}`;
+  $("#d-val").textContent=money(o.value);
+  $("#d-delta").textContent=pct(o.delta); $("#d-delta").className="num "+(o.delta>=0?"up":"down");
+  $("#d-chart").innerHTML=areaChart(series(i+7,o.delta>=0), o.delta>=0?"up":"down");
+  const w = o.weights || weights(o.picks);
+  $("#d-holdings").innerHTML = o.picks.map((t,k)=>holdRow(t,w[k],false)).join("");
+  showSheet("#sheet");
+}
+function showSheet(sel){ $("#backdrop").classList.add("on"); $(sel).classList.add("on"); }
+function hideSheets(){ $("#backdrop").classList.remove("on"); $$(".sheet").forEach(s=>s.classList.remove("on")); }
+$("#backdrop").addEventListener("click",hideSheets);
+$("#d-add").addEventListener("click",()=>{ hideSheets(); go("build"); $("#prompt").value = owned[detailIdx].name; buildFromPrompt(); });
+$("#d-sell").addEventListener("click",()=>{ hideSheets(); toast("Selling is coming next"); });
+$$(".range button").forEach(b=>b.addEventListener("click",()=>{ $$(".range button").forEach(x=>x.classList.remove("on")); b.classList.add("on"); $("#d-chart").innerHTML=areaChart(series(detailIdx+7+b.textContent.length, owned[detailIdx].delta>=0), owned[detailIdx].delta>=0?"up":"down"); }));
+
+/* ---------- Build wizard ---------- */
+let step=1, basket=null;
+function setStep(n){
+  step=n;
+  $$(".steps i").forEach((i,k)=>i.classList.toggle("on",k<n));
+  $("#build-step-label").textContent=`Step ${n} of 3`;
+  ["b1","b2","b3"].forEach((id,k)=>$("#"+id).hidden = (k+1!==n));
+  const cta=$("#build-cta"); cta.hidden = (n===1);
+  if(n===2){ sizeTitle(); $("#build-next").textContent="Looks good"; $("#build-hint").textContent="Drag a bar to change a weight, tap the title to rename."; }
+  if(n===3){ $("#build-next").textContent="Go long"; $("#build-hint").textContent="One transaction on Base. You'll see it on Basescan."; }
+  if(n===1){ $("#thinking").hidden=true; $("#suggest-section").hidden=false; $("#prompt").disabled=false; }
+  $("#build-scroll").scrollTop=0;
+}
+$("#build-back").addEventListener("click",()=>{ if(step>1) setStep(step-1); else go("home"); });
+$("#suggest").innerHTML = SUGGEST.map(s=>`<button class="chip">${s}</button>`).join("");
+$$("#suggest .chip").forEach(c=>c.addEventListener("click",()=>{ $("#prompt").value=c.textContent; buildFromPrompt(); }));
+$("#send").addEventListener("click",buildFromPrompt);
+$("#prompt").addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); buildFromPrompt(); }});
+
+function parsePrompt(text){
+  const t = text.trim();
+  // exclusions: "no X", "without X", "minus X", "not X", "except X"
+  const ex = new Set();
+  const exRe = /\b(?:no|without|minus|not|except|excluding|nothing from|sin)\s+([a-z0-9&\.\- ]+?)(?=[,.;]|\s+(?:and|or|but|y|ni)\b|$)/gi;
+  let m; while((m=exRe.exec(t))){ const phrase=m[1].toLowerCase();
+    for(const [tk,nm] of Object.entries(STOCKS)){
+      const first = nm.split(" ")[0].replace(/[.&]/g,"\\$&");
+      if(new RegExp("\\b("+tk+"|"+first+")\\b","i").test(phrase)) ex.add(tk);
+    }
+    for(const [who,tk] of Object.entries(PEOPLE)){ if(new RegExp("\\b"+who+"\\b","i").test(phrase)) ex.add(tk); }
+    if(/oil|energy|gas|fossil/.test(phrase)) ["XOM","CVX","VIST"].forEach(x=>ex.add(x));
+    if(/volatil|meme|tesla/.test(phrase)) ex.add("TSLA");
+    if(/china|chinese/.test(phrase)) ["TSM","BABA","PDD","BIDU","XPEV","NIO","LI","HSAI"].forEach(x=>ex.add(x));
+    if(/big tech|faang|mega/.test(phrase)) ["AAPL","MSFT","GOOGL","AMZN","META"].forEach(x=>ex.add(x));
+    if(/banks?/.test(phrase)) ex.add("JPM");
+  }
+  // remove exclusion clauses before theme matching so "no Nvidia" doesn't select AI purely from the exclusion
+  const positive = t.replace(exRe,"");
+  let theme = THEMES.find(th=>th.match.test(positive)) || THEMES.find(th=>th.match.test(t)) || DEFAULT_THEME;
+  const explicitIncludes = [];
+  for(const [tk,nm] of Object.entries(STOCKS)){
+    const re = new RegExp("\\b("+tk+"|"+nm.split(" ")[0].replace(/[.&]/g,"\\$&")+")\\b","i");
+    if(re.test(positive) && !ex.has(tk)) explicitIncludes.push(tk);
+  }
+  // reuse an owned index if the prompt is its name
+  const ownedMatch = owned.find(o=>o.name.toLowerCase()===t.toLowerCase());
+  if(ownedMatch) return { name:ownedMatch.name, picks:[...ownedMatch.picks], weights:[...(ownedMatch.weights||weights(ownedMatch.picks))], excluded:[], note:"Adding to the index you already own. Same weights, same token." };
+  let picks = theme.picks.filter(p=>!ex.has(p));
+  explicitIncludes.forEach(p=>{ if(!picks.includes(p)) picks.push(p); });
+  picks = picks.slice(0,10);
+  let excluded = [...ex].filter(x=>theme.picks.includes(x)); if(!excluded.length) excluded=[...ex].slice(0,3);
+  let note = theme.note;
+  if(excluded.length) note += ` Left out ${excluded.map(x=>STOCKS[x]).join(", ")}, as you asked.`;
+  return { name:theme.name, picks, excluded, note, weights:weights(picks) };
+}
+function weights(picks){
+  // front-loaded weights that sum to 100
+  const n=picks.length; const raw=picks.map((_,i)=>1/(1+i*0.18)); const s=raw.reduce((a,b)=>a+b,0);
+  const w=raw.map(r=>Math.round(r/s*100)); const diff=100-w.reduce((a,b)=>a+b,0); w[0]+=diff; return w;
+}
+function holdRow(tk,w,removable){
+  const bar = removable
+    ? `<input type="range" class="wr" min="1" max="80" value="${w}" data-w="${tk}" style="--p:${w}" aria-label="${STOCKS[tk]} weight">`
+    : `<span class="bar"><i style="width:${w}%"></i></span>`;
+  return `<div class="hold" data-tk="${tk}">
+    <span class="logo">${tk}</span>
+    <span><span class="name">${STOCKS[tk]}</span>${bar}</span>
+    <span class="w num">${w}%</span>
+    ${removable?`<button class="rm" data-rm="${tk}" aria-label="Remove ${STOCKS[tk]}">×</button>`:"<span></span>"}
+  </div>`;
+}
+function buildFromPrompt(){
+  const text=$("#prompt").value.trim(); if(!text){ $("#prompt").focus(); return; }
+  $("#suggest-section").hidden=true; $("#send").disabled=true; $("#prompt").disabled=true; $("#prompt").blur();
+  const steps=$$("#thinking li"); steps.forEach(li=>li.className="");
+  $("#thinking").hidden=false;
+  const fast = matchMedia("(prefers-reduced-motion: reduce)").matches; const t = fast ? 10 : 520;
+  steps.forEach((li,i)=>{ setTimeout(()=>{ if(i>0) steps[i-1].className="done"; li.className="doing"; }, i*t); });
+  setTimeout(()=>{
+    steps[steps.length-1].className="done";
+    setTimeout(()=>{ basket = parsePrompt(text); $("#send").disabled=false; renderBasket(); setStep(2); }, fast?10:250);
+  }, steps.length*t);
+}
+function renderBasket(){
+  $("#idx-name").value = basket.name; sizeTitle();
+  $("#ai-text").textContent = basket.note;
+  $("#excluded").innerHTML = basket.excluded.length ? `<span class="tiny">Excluded:</span>`+basket.excluded.map(x=>`<span class="x">${STOCKS[x]}</span>`).join("") : "";
+  $("#holdings").innerHTML = basket.picks.map((t,k)=>holdRow(t,basket.weights[k],true)).join("");
+  $("#f-count").textContent = basket.picks.length;
+  $("#r-tokens").textContent = basket.picks.length+" stocks";
+  $$("[data-rm]").forEach(b=>b.addEventListener("click",()=>{
+    if(basket.picks.length<=3){ toast("Keep at least 3 stocks"); return; }
+    const i = basket.picks.indexOf(b.dataset.rm);
+    basket.picks.splice(i,1); basket.weights.splice(i,1);
+    basket.weights = normalize(basket.weights); renderBasket();
+  }));
+  $$("[data-w]").forEach(r=>r.addEventListener("input",()=>setWeight(basket.picks.indexOf(r.dataset.w), +r.value)));
+}
+// scale a list of weights so it sums to 100 (integers), keeping proportions
+function normalize(ws, lockIdx=-1){
+  const lock = lockIdx>=0 ? ws[lockIdx] : 0;
+  const rest = ws.reduce((a,w,i)=>i===lockIdx?a:a+w,0) || 1;
+  const out = ws.map((w,i)=>i===lockIdx ? w : Math.max(1, Math.round(w*(100-lock)/rest)));
+  let diff = 100 - out.reduce((a,b)=>a+b,0);
+  // fix rounding drift on the largest unlocked weight
+  for(let k=0;diff!==0&&k<50;k++){ let j=-1; out.forEach((w,i)=>{ if(i!==lockIdx && (j<0 || w>out[j]) && (diff>0 || w>1)) j=i; }); if(j<0) break; out[j]+=Math.sign(diff); diff-=Math.sign(diff); }
+  return out;
+}
+function setWeight(i, v){
+  basket.weights[i]=v; basket.weights = normalize(basket.weights, i);
+  $$("#holdings .hold").forEach((row,k)=>{
+    const w=basket.weights[k]; const r=row.querySelector(".wr");
+    if(k!==i) r.value=w; r.style.setProperty("--p", w); row.querySelector(".w").textContent=w+"%";
+  });
+}
+function sizeTitle(){ const i=$("#idx-name"); $("#idx-sizer").textContent = i.value || " "; i.style.width = ($("#idx-sizer").offsetWidth + 8) + "px"; }
+$("#idx-name").addEventListener("input",()=>{ basket.name = $("#idx-name").value.trim() || basket.name; sizeTitle(); });
+$("#idx-name").addEventListener("keydown",e=>{ if(e.key==="Enter") e.target.blur(); });
+$("#build-next").addEventListener("click",()=>{
+  if(step===2){ basket.name = $("#idx-name").value.trim() || basket.name; setStep(3); return; }
+  if(step===3) buy();
+});
+/* amount */
+const amt=$("#amt");
+function setAmt(v){ v=Math.max(0, Math.round(v*100)/100); amt.value=v; $("#amt-view").textContent = v%1?v.toFixed(2):v; $("#r-amt").textContent=money(v);
+  $$(".presets [data-amt]").forEach(c=>c.classList.toggle("on", +c.dataset.amt===v));
+  const usdc = $$(".pay-opt").find(p=>p.classList.contains("on")).dataset.pay==="usdc";
+  const short = usdc ? v>cash : v>ARGT/FX;
+  $("#r-fx-row").hidden = usdc; $("#r-fx").textContent = argt(v*FX);
+  $("#build-next").disabled = v<1 || short;
+  $("#build-hint").textContent = short ? (usdc ? "Not enough USDC. Pay with ARGt or lower the amount." : "Not enough ARGt. Pay with USDC or lower the amount.") : "One transaction on Base. You'll see it on Basescan.";
+}
+$$(".presets [data-amt]").forEach(c=>c.addEventListener("click",()=>setAmt(+c.dataset.amt)));
+amt.addEventListener("input",()=>setAmt(+amt.value||0));
+$(".amount .big").addEventListener("click",()=>{ amt.style.opacity=1; amt.style.pointerEvents="auto"; amt.style.position="static"; amt.focus(); });
+$$(".pay-opt").forEach(p=>p.addEventListener("click",()=>{ $$(".pay-opt").forEach(x=>x.classList.remove("on")); p.classList.add("on"); setAmt(+amt.value||0); }));
+
+function buy(){
+  const v=+amt.value; const usdc=$$(".pay-opt").find(p=>p.classList.contains("on")).dataset.pay==="usdc";
+  const btn=$("#build-next"); btn.disabled=true; btn.textContent = usdc ? "Signing…" : "Swapping ARGt → USDC…";
+  setTimeout(()=>{
+    btn.textContent="Minting on Base…";
+    setTimeout(()=>{
+      const existing = owned.find(o=>o.name===basket.name);
+      if(existing){ existing.value += v; }
+      else owned.unshift({ name:basket.name, picks:[...basket.picks], weights:[...basket.weights], value:v, delta:0.0, created:"today", emoji:"✦" });
+      if(usdc) cash -= v; else ARGT -= v*FX;
+      activity.unshift({ t:"Went long · "+basket.name, s:(usdc?"USDC → index":"ARGt → USDC → index")+" · today", v:"−"+money(v), small:usdc?"$0.12 fee":argt(v*FX), ic:"📈" });
+      $("#ok-sub").textContent = `${basket.name} is in your wallet. Welcome to the long side.`;
+      $("#ok-tx").textContent = txHash();
+      $("#success").classList.add("active");
+      btn.disabled=false; btn.textContent="Go long";
+    }, 900);
+  }, 900);
+}
+$("#ok-done").addEventListener("click",()=>{ $("#success").classList.remove("active"); $("#prompt").value=""; go("home"); });
+
+/* ---------- Activity ---------- */
+function renderActivity(){
+  $("#activity").innerHTML = activity.map(a=>`<div class="act"><span class="ic">${a.ic}</span><span><span class="t">${a.t}</span><br><span class="s">${a.s}</span></span><span class="v ${a.cls||""}">${a.v}<small>${a.small}</small></span></div>`).join("");
+}
+
+/* ---------- Theme toggle (avatar) ---------- */
+$("#theme-btn").addEventListener("click",()=>{
+  const r=document.documentElement; const dark = r.dataset.theme==="dark" || (!r.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
+  r.dataset.theme = dark ? "light" : "dark";
+});
+
+renderHome(); renderActivity(); setAmt(100);
+</script>
+</body>
+</html>

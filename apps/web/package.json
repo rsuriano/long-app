@@ -1,0 +1,36 @@
+{
+  "name": "@long/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "precompute": "node --env-file-if-exists=../../.env --experimental-strip-types scripts/precompute.ts",
+    "build:static": "bash scripts/build-static.sh",
+    "record": "node --env-file-if-exists=../../.env --experimental-strip-types scripts/record-purchase.ts"
+  },
+  "dependencies": {
+    "@coinbase/onchainkit": "^1.1.2",
+    "@coinbase/wallet-sdk": "^4.3.7",
+    "@long/ai": "workspace:*",
+    "@long/execution": "workspace:*",
+    "@long/universe": "workspace:*",
+    "@tanstack/react-query": "^5.102.8",
+    "next": "^16.3.4",
+    "postgres": "^3.4.9",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "viem": "^2.56.3",
+    "wagmi": "^3.7.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "typescript": "^5.9.0",
+    "vitest": "^5.0.0"
+  }
+}
